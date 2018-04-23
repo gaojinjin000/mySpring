@@ -1,8 +1,8 @@
 package com.gao.spring.demo.action;
 
-import com.gao.spring.annotation.GAutowired;
-import com.gao.spring.annotation.GController;
-import com.gao.spring.annotation.GRequestMapping;
+import com.gao.spring.framework.annotation.GAutowired;
+import com.gao.spring.framework.annotation.GController;
+import com.gao.spring.framework.annotation.GRequestMapping;
 import com.gao.spring.demo.service.IDemoService;
 
 /**

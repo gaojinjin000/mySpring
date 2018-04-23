@@ -8,7 +8,7 @@
 
   <servlet>
     <servlet-name>Gspring</servlet-name>
-    <servlet-class>com.gao.spring.servlet.GDispatcherServlet</servlet-class>
+    <servlet-class>com.gao.spring.framework.webmvc.servlet.GDispatcherServlet</servlet-class>
     <init-param>
       <param-name>contextConfigLocation</param-name>
       <param-value>classpath:application.properties</param-value>

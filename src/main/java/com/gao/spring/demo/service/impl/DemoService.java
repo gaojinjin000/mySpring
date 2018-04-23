@@ -1,7 +1,7 @@
 package com.gao.spring.demo.service.impl;
 
 
-import com.gao.spring.annotation.GService;
+import com.gao.spring.framework.annotation.GService;
 import com.gao.spring.demo.service.IDemoService;
 
 @GService
