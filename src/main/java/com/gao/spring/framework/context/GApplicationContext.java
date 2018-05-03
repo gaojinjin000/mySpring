@@ -3,6 +3,7 @@ package com.gao.spring.framework.context;
 import com.gao.spring.framework.annotation.GAutowired;
 import com.gao.spring.framework.annotation.GController;
 import com.gao.spring.framework.annotation.GService;
+import com.gao.spring.framework.aop.GAopConfig;
 import com.gao.spring.framework.beans.BeanDefinition;
 import com.gao.spring.framework.beans.BeanPostProcessor;
 import com.gao.spring.framework.beans.BeanWrapper;
@@ -10,10 +11,13 @@ import com.gao.spring.framework.context.support.BeanDefinitionReader;
 import com.gao.spring.framework.core.GBeanFactory;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by 20170707365 on 2018/4/23.
@@ -77,7 +81,7 @@ public class GApplicationContext implements GBeanFactory {
 
         //向实例化对象中引用的对象进行依赖注入
         for (Map.Entry<String, BeanWrapper> beanWrapperEntry : beanWrapperMap.entrySet()) {
-            populateBean(beanWrapperEntry.getKey(), beanWrapperEntry.getValue().getWrapperInstance());
+            populateBean(beanWrapperEntry.getKey(), beanWrapperEntry.getValue().getOriginalInstance());
         }
 
     }
@@ -168,6 +172,7 @@ public class GApplicationContext implements GBeanFactory {
         beanPostProcessor.postProcessBeforeInitialization(instance, beanName);
 
         BeanWrapper beanWrapper = new BeanWrapper(instance);
+        beanWrapper.setGAopConfig(instantionAopConfig(definition));
         beanWrapper.setPostProcessor(beanPostProcessor);
         beanWrapperMap.put(beanName, beanWrapper);
 
@@ -175,8 +180,38 @@ public class GApplicationContext implements GBeanFactory {
         beanPostProcessor.postProcessAfterInitialization(instance, beanName);
 
 
-        return beanWrapperMap.get(beanName);
+        return beanWrapperMap.get(beanName).getWrapperInstance();
 
+
+    }
+
+    private GAopConfig instantionAopConfig(BeanDefinition definition) {
+        try {
+            GAopConfig gAopConfig = new GAopConfig();
+            String expression = this.reader.getConfig().getProperty("pointCut");
+            String[] before = this.reader.getConfig().getProperty("aspectBefore").split("\\s");
+            String[] after = this.reader.getConfig().getProperty("aspectAfter").split("\\s");
+
+            String beanName = definition.getBeanClassName();
+            Class clazz = Class.forName(beanName);
+
+            Method[] methods = clazz.getMethods();
+            Pattern pattern = Pattern.compile(expression);
+
+            Class aspect = Class.forName(before[0]);
+            for (Method method : methods) {
+                Matcher matcher = pattern.matcher(method.toString());
+                if (matcher.matches()) {
+                    gAopConfig.put(method,aspect.newInstance(),new Method[]{aspect.getMethod(before[1]),aspect.getMethod(after[1])});
+                }
+            }
+
+            return gAopConfig;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
 
     }
 

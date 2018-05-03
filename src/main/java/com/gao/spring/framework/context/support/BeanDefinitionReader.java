@@ -81,6 +81,9 @@ public class BeanDefinitionReader {
         return null;
     }
 
+    public Properties getConfig() {
+        return this.config;
+    }
 
     private String lowerFirstCast(String className) {
 

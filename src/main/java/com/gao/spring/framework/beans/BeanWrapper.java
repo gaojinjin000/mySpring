@@ -1,10 +1,14 @@
 package com.gao.spring.framework.beans;
 
+import com.gao.spring.framework.aop.GAopConfig;
+import com.gao.spring.framework.aop.GAopProxy;
+
 /**
  * Created by 20170707365 on 2018/4/23.
  */
 public class BeanWrapper {
 
+    private GAopProxy gAopProxy = new GAopProxy();
     //还会用到  观察者  模式
     //1、支持事件响应，会有一个监听
     private BeanPostProcessor postProcessor;
@@ -15,7 +19,7 @@ public class BeanWrapper {
 
     public BeanWrapper(Object originalInstance) {
         this.originalInstance = originalInstance;
-        this.wrapperInstance = originalInstance;
+        this.wrapperInstance = gAopProxy.getProxy(originalInstance);
     }
 
     public BeanPostProcessor getPostProcessor() {
@@ -40,6 +44,10 @@ public class BeanWrapper {
 
     public void setWrapperInstance(Object wrapperInstance) {
         this.wrapperInstance = wrapperInstance;
+    }
+
+    public void setGAopConfig(GAopConfig gAopConfig) {
+        gAopProxy.setgAopConfig(gAopConfig);
     }
 
     // 返回代理以后的Class
